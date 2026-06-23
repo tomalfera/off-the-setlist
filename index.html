@@ -237,20 +237,17 @@ function requestSong(song, btn) {
   setTimeout(() => btn.classList.remove('just-requested'), 600);
   updateCounter();
 
-  // Share sheet
-  const text = '\uD83C\uDFB5 Request: ' + song;
-  if (navigator.share) {
-    navigator.share({
-      title: 'Song Request',
-      text: text,
-    }).catch(() => {});
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard?.writeText(text).catch(() => {});
-  }
+  // Send to ntfy.sh — no auth, instant push notification
+  fetch('https://ntfy.sh/tomalfera-setlist-502177', {
+    method: 'POST',
+    body: '\uD83C\uDFB5 ' + song,
+    headers: { 'Title': 'Song Request' }
+  }).then(() => {
+    toast.textContent = '\u2714 ' + song + ' — Requested!';
+  }).catch(() => {
+    toast.textContent = '\u26A0 Signal issue — tap again';
+  });
 
-  // Toast
-  toast.textContent = '\u2714 ' + song + ' — Sent!';
   toast.classList.add('show');
   clearTimeout(toast._t);
   toast._t = setTimeout(() => toast.classList.remove('show'), 2500);
